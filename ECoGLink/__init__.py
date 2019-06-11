@@ -1,5 +1,5 @@
 
-from enums import *
+from .enums import *
 
 class Application():
 
@@ -8,7 +8,7 @@ class Application():
     # Device = Devices.Neomono
 
     def __init__(self):
-
+        return
 
 
 if __name__ == '__main__':
