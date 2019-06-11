@@ -5,7 +5,12 @@ class Application():
 
     # Application-related variables
     state = AppState.CONTINUOUS
-    # Device = Devices.Neomono
+
+    # OutputDevice = Devices.Neomono
+
+    # InputDevice = Devices.Nexis
+
+    # GUIComDevice = BlueTooth...
 
     def __init__(self):
         return
