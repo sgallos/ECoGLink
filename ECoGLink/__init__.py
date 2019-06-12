@@ -1,6 +1,4 @@
 
-from .enums import *
-
 class Application():
 
     # OutputDevice = Devices.Neomono
