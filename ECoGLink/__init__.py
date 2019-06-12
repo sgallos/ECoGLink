@@ -3,14 +3,11 @@ from .enums import *
 
 class Application():
 
-    # Application-related variables
-    state = AppState.CONTINUOUS
-
     # OutputDevice = Devices.Neomono
 
     # InputDevice = Devices.Nexis
 
-    # GUIComDevice = BlueTooth...
+    # GUIComm = GUIComm() # Initialize GUI Communication Thread
 
     def __init__(self):
         return
