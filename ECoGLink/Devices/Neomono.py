@@ -37,7 +37,7 @@ class Continuous_Condition(Operation_mode):
         if BMI_input == NexusOutput.MOVE:
             Hardware_output = Neomono_output.FLEX
         else:
-            Hardware_output = Neomono_output.STOP
+            Hardware_output = Neomono_output.EXTEND
         return Hardware_output
 
 #Toggle state

@@ -25,3 +25,11 @@ def test_toggle():
     # Moving again should set it back
     toggle_mode.process(NexusOutput.MOVE)
     assert toggle_mode.state == Neomono_state.EXTENDED
+
+def test_continuous():
+
+    continuous_mode = Continuous_Condition()
+
+    assert Neomono_output.FLEX == continuous_mode.process(NexusOutput.MOVE)
+
+    assert Neomono_output.EXTEND == continuous_mode.process(NexusOutput.REST)
