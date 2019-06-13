@@ -5,13 +5,13 @@ import pytest
 
 sys.path.append(os.path.realpath('./'))
 
-from ECoGLink.Devices.Neomono.Neomono import *
-from ECoGLink.Devices.Nexus.Outputs import *
+from ECoGLink.Devices.Neomono import *
+from ECoGLink.Devices.Nexus import *
 
 def test_toggle():
 
     # Should initialize to the state you set
-    toggle_mode = Toggle_mode(Neomono_state.EXTENDED)
+    toggle_mode = Toggle_Condition(state = Neomono_state.EXTENDED)
     assert toggle_mode.state == Neomono_state.EXTENDED
 
     # Should change after processing a move
