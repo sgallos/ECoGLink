@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 Created on Thu Jun 13 13:28:45 2019
 
+@author: charl
 
 Grab Data Packets
 """
