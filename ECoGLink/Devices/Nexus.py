@@ -1,6 +1,6 @@
 
 from enum import Enum
 
-class NexusOutput(Enum):
+class ClassifiedInput(Enum):
     MOVE = 1
     REST = 0

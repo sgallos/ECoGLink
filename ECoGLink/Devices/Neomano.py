@@ -1,7 +1,7 @@
 
 from enum import Enum
 from .Operation_mode import Operation_mode
-from .Nexus import NexusOutput
+import ECoGLink.Devices.Nexus as Nexus
 
 class State(Enum):
     STOPPED = 0
@@ -34,7 +34,7 @@ class Continuous_Condition(Operation_mode):
         return
     
     def process(self, BMI_input):
-        if BMI_input == NexusOutput.MOVE:
+        if BMI_input == Nexus.ClassifiedInput.MOVE:
             Hardware_output = OutputCommand.FLEX
         else:
             Hardware_output = OutputCommand.EXTEND
@@ -48,13 +48,13 @@ class Toggle_Condition(Operation_mode):
         return
     
     def process(self, BMI_input):
-        if BMI_input == NexusOutput.MOVE and self.state != State.FLEXED:
+        if BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.FLEXED:
             Hardware_output = OutputCommand.FLEX
             self.state = State.FLEXED
-        elif BMI_input == NexusOutput.MOVE and self.state != State.EXTENDED:
+        elif BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.EXTENDED:
             Hardware_output = OutputCommand.EXTEND
             self.state = State.EXTENDED
-        elif BMI_input == NexusOutput.REST and self.state == State.FLEXED:
+        elif BMI_input == Nexus.ClassifiedInput.REST and self.state == State.FLEXED:
             Hardware_output = OutputCommand.FLEX
         else:
             Hardware_output = OutputCommand.STOP
