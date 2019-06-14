@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod, abstractproperty
 
 class Device(ABC):
 
+    @abstractmethod
     def __init__(self):
         return
 
