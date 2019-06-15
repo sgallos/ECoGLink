@@ -6,7 +6,6 @@ Created on Fri Jun 14 13:59:17 2019
 """
 
 import ECoGLink.Devices.Nexus as Nexus
-import matlab.engine
 #import serial
 
 class Real(Nexus._Nexus):
