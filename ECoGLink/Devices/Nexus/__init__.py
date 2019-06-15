@@ -15,9 +15,10 @@ class State(Enum):
     MAINTENANCE_SESSION = 'MAINTENANCE_SESSION'
     
 class Port_Status(Enum):
-    SUCCESS = 0.0
-    DISCONNECT = 1.0
+    CONNECTED = 0.0
+    NOT_FOUND = 1.0
     BUSY = 2.0
+    ALREADY_OPENED = 4.0
     ALREADY_CONNECTED = -1.0
 
 
