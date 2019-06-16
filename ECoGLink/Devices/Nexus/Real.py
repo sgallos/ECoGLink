@@ -31,37 +31,16 @@ class Real(Nexus._Nexus):
     def __init__(self, port):
         super().__init__(port)
         
-        self.__start_jvm__()
-        self.inst = self.gateway.jvm.NexusInstrument()
-        self.s2 = self.gateway.jvm.SerialConnection(self.port)
-        self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
-        self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
-        self.get_status()
-        self.is_initialized = True if Nexus.Response_Code(self.inst.getLastInsResponseCode()) == Nexus.Response_Code.SUCCESS else False
-        self.set_configuration(30, 15)
-        self.start_data_session()
+        # self.__start_jvm__()
+        # self.inst = self.gateway.jvm.NexusInstrument()
+        # self.s2 = self.gateway.jvm.SerialConnection(self.port)
+        # self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
+        # self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
+        # self.get_status()
+        # self.is_initialized = True if Nexus.Response_Code(self.inst.getLastInsResponseCode()) == Nexus.Response_Code.SUCCESS else False
+        # self.set_configuration(30, 15)
+        # self.start_data_session()
         
-#        @abstractmethod
-#        def set_nexusjar_location(self, locN):
-#        # set location for nexus jar
-#        pass
-#    
-#        @abstractmethod
-#        def set_jsscjar_location(self, locJ):
-#        # set location for jssc jar
-#        pass
-#    
-#        @abstractmethod
-#        def setup_nexus(self, comport):
-#        # set up nexus 
-#        # return location for instance of engine
-#        # return location for instance of mdt 
-#        pass
-        
-        ##
-        ## reset com ports with ser.close() and ser.open()
-        ##
-    
     def __del__(self):
         if(self.jvm != None):
             self.jvm.terminate()
