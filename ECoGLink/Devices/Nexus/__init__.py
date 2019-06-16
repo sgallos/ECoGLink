@@ -1,4 +1,7 @@
 
+import os
+import re
+
 from enum import Enum
 from abc import ABC, abstractmethod 
 
@@ -94,3 +97,24 @@ class _Nexus(ABC):
     @abstractmethod
     def stop_data_session():
         pass
+
+    def __find_py4j__(self):
+
+        if(os.system == 'Windows'):
+            dirs = ['C:/']
+        else:
+            dirs = ['/usr/local/share', '/usr/share']
+
+        return self.__find_py4j_in_dirs__(dirs)
+
+    def __find_py4j_in_dirs__(self, dirs):
+        self.py4j_loc = None
+        src = r'py4j0[0-9\.]+jar';
+        ismatch = lambda x: (re.match(src, x) != None)
+        for d in dirs:
+            for root, dir, files in os.walk(d):
+                for file in files:
+                    if ismatch(file):
+                        self.py4j_loc = os.path.join(root, file)
+        return self.py4j_loc
+

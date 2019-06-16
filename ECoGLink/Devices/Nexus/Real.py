@@ -5,8 +5,6 @@ Created on Fri Jun 14 13:59:17 2019
 @author: charl
 """
 
-import os
-import re
 import time
 import subprocess
 from py4j.java_gateway import JavaGateway, java_import
@@ -44,25 +42,6 @@ class Real(Nexus._Nexus):
     def __del__(self):
         if(self.jvm != None):
             self.jvm.terminate()
-        return
-
-    def __find_py4j__(self):
-
-        if(os.system == 'Windows'):
-            dirs = ['C:/']
-        else:
-            dirs = ['/usr/local/share', '/usr/share']
-
-        return self.__find_py4j_in_dirs__(dirs)
-
-    def __find_py4j_in_dirs__(self, dirs):
-        src = r'py4j0[0-9\.]+jar';
-        ismatch = lambda x: (re.match(src, x) != None)
-        for d in dirs:
-            for root, dir, files in os.walk(d):
-                for file in files:
-                    if ismatch(file):
-                        return os.path.join(root, file)
         return
 
     def __start_jvm__(self):
