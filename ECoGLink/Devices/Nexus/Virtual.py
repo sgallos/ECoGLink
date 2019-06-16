@@ -8,10 +8,10 @@ Created on Fri Jun 14 14:06:22 2019
 import ECoGLink.Devices.Nexus as Nexus
 
 class Virtual(Nexus._Nexus):
-    
+
     def __init__(self, port):
         self.isInitialized = True
-        self.port_status = Nexus.Port_Status.SUCCESS
+        self.port_status = Nexus.Port_Status.CONNECTED
         return
     
     def get_data_packet(self):
@@ -22,5 +22,16 @@ class Virtual(Nexus._Nexus):
         return [ch1, ch2, ch3, ch4]
     
     def get_state(self):
-        return
-    
+        return Nexus.State.INS_CONNECTED
+
+    def get_status(self):
+        return Nexus.Status(self.get_state(), 1, 2, 1.0, False, 0, 0)
+
+    def set_configuration(self, main_session_timeout, host_session_timeout):
+        return 108
+
+    def start_data_session(self):
+        return 108
+
+    def stop_data_session(self):
+        return 108
