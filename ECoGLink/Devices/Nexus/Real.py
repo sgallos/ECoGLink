@@ -45,13 +45,18 @@ class Real(Nexus._Nexus):
         return
 
     def __start_jvm__(self):
-        py4j = self.__find_py4j__()
         nexus_dir = "./ECoGLink/Devices/Nexus"
+        py4j = f"{nexus_dir}/py4j0.10.8.1.jar" # self.__find_py4j__()
         jssc = f"{nexus_dir}/jssc.jar"
         nexus = f"{nexus_dir}/nexus.jar"
         jar_includes = f"{nexus_dir}:{py4j}:{jssc}:{nexus}"
         args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
+
+        # if(self.py4j_loc == None):
+            # raise Exception('py4j.jar not found - cannot continue interaction with device')
+
         self.jvm = subprocess.Popen(args, stdout=subprocess.PIPE)
+
         timeout = 10
         start_time = time.time()
         for line in iter(self.jvm.stdout.readline, ''):
@@ -62,6 +67,9 @@ class Real(Nexus._Nexus):
             duration = cur_time - start_time
             if (duration > timeout):
                 print("Failed to start gateway! TIMEOUT")
+                break
+
+        # Start Gateaway
         self.gateway = JavaGateway()
         java_import(self.gateway.jvm, 'mdt.neuro.nexus.*')
         return

@@ -46,10 +46,6 @@ def nexus_test(cls):
     port = 'COM5'   # Device.Find device port 
     NVD = cls(port = port)
 
-    # test for py4j jar location!
-    NVD.__find_py4j__()
-    assert NVD.py4j_loc != None
-
     # We should run a separate set of tests if the device is not connected
     if NVD.is_initialized == False:
         nexus_disconnected_tests(NVD)
