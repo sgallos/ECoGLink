@@ -7,8 +7,8 @@ install:
     - pip install -r requirements.txt
 
 before_script:
-    - export RES=$(find /usr/local/share -name "py4j*.jar")
-    - echo "FILE: ${RES}"
+    - find /usr/local/share -name "py4j*.jar"
+    - find /usr/share -name "py4j*.jar"
 
 script:
     pytest
