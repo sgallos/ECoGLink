@@ -29,7 +29,7 @@ class Real(Nexus._Nexus):
     def __init__(self, port):
         super().__init__(port)
         
-        # self.__start_jvm__()
+        self.__start_jvm__()
         # self.inst = self.gateway.jvm.NexusInstrument()
         # self.s2 = self.gateway.jvm.SerialConnection(self.port)
         # self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
