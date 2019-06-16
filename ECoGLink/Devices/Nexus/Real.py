@@ -5,10 +5,16 @@ Created on Fri Jun 14 13:59:17 2019
 @author: charl
 """
 
+import os
+import re
+import subprocess
+from py4j.java_gateway import JavaGateway, java_import
 import ECoGLink.Devices.Nexus as Nexus
-#import serial
 
 class Real(Nexus._Nexus):
+
+    jvm = None
+
     #
     #
     # must haves
@@ -24,18 +30,15 @@ class Real(Nexus._Nexus):
     def __init__(self, port):
         super().__init__(port)
         
-        #self.reset()
-        self.eng = matlab.engine.start_matlab()
-        self.eng.javaaddpath(self.nexus_jar_file, nargout =0)
-        self.eng.javaaddpath(self.jssc_jar_file, nargout =0)
-        self.eng.workspace['inst'] = self.eng.mdt.neuro.nexus.NexusInstrument(nargout = 1)
-        self.eng.workspace['s2'] = self.eng.mdt.neuro.nexus.SerialConnection(self.port)
-        self.port_status = Nexus.Port_Status(self.eng.eval('inst.connect(s2)'))
-        self.eng.workspace['provider']= self.eng.mdt.neuro.nexus.ThreadedNexusInstrument(self.eng.eval('inst'))
-        self.eng.eval('inst.getNexusStatus', nargout = 0)
-        self.isInitialized = True if self.eng.eval("inst.get('LastInsResponseString')") == 'SUCCESS' else False
-        self.eng.eval('inst.setNexusConfiguration(30,15)')
-        self.eng.eval('inst.startDataSession')
+        self.__start_jvm__()
+        self.inst = self.gateway.jvm.NexusInstrument()
+        self.s2 = self.gateway.jvm.SerialConnection(self.port)
+        self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
+        self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
+        self.get_status()
+        self.is_initialized = True if Nexus.Response_Code(self.inst.getLastInsResponseCode()) == Nexus.Response_Code.SUCCESS else False
+        self.set_configuration(30, 15)
+        self.start_data_session()
         
 #        @abstractmethod
 #        def set_nexusjar_location(self, locN):
@@ -57,25 +60,64 @@ class Real(Nexus._Nexus):
         ##
         ## reset com ports with ser.close() and ser.open()
         ##
+    
+    def __del__(self):
+        if(self.jvm != None):
+            self.jvm.terminate()
+        return
 
+    def __find_py4j__(self):
 
-    def get_nexus_status(self):
+        if(os.system == 'Windows'):
+            dirs = ['C:/']
+        else:
+            dirs = ['/usr/local/share', '/usr/share']
+
+        return self.__find_py4j_in_dirs__(dirs)
+
+    def __find_py4j_in_dirs__(self, dirs):
+        src = r'py4j0[0-9\.]+jar';
+        ismatch = lambda x: (re.match(src, x) != None)
+        for d in dirs:
+            for root, dir, files in os.walk(d):
+                for file in files:
+                    if ismatch(file):
+                        return os.path.join(root, file)
+        return
+
+    def __start_jvm__(self):
+        py4j = self.__find_py4j__()
+        nexus_dir = "./ECoGLink/Devices/Nexus"
+        jssc = f"{nexus_dir}/jssc.jar"
+        nexus = f"{nexus_dir}/nexus.jar"
+        jar_includes = f"{nexus_dir}:{py4j}:{jssc}:{nexus}"
+        args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
+        self.jvm = subprocess.Popen(args, stdout=subprocess.PIPE)
+        for line in iter(self.jvm.stdout.readline, ''):
+            if (line.strip() == b'Gateway Server Started'):
+                print(line)
+                break
+        self.gateway = JavaGateway()
+        java_import(self.gateway.jvm, 'mdt.neuro.nexus.*')
+        return
+
+    def get_status(self):
         # return nexus status
-        return self.eng.eval('inst.getNexusStatus', nargout = 0)
+        return self.inst.getNexusStatus()
     
 
-    def set_nexus_config(self, timeouta, timeoutb):
+    def set_configuration(self, main_session_timeout, host_session_timeout):
         # set nexus time out configs
-        self.timeouta = timeouta
-        self.timeoutb = timeoutb
-        self.eng.eval('inst.setNexusConfiguration(' + self.timeouta + ',' + self.timeoutb + ')')
-        return
+        self.main_session_timeout = main_session_timeout
+        self.host_session_timeout = host_session_timeout
+        return self.inst.setNexusConfiguration(main_session_timeout, host_session_timeout)
     
     def get_state(self):
         return
+
     def start_data_session(self):
         # start data collection stream
-        self.eng.eval('inst.startDataSession')
+        self.inst.startDataSession()
         return
     
 
