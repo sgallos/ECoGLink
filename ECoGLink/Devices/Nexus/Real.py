@@ -7,6 +7,7 @@ Created on Fri Jun 14 13:59:17 2019
 
 import os
 import re
+import time
 import subprocess
 from py4j.java_gateway import JavaGateway, java_import
 import ECoGLink.Devices.Nexus as Nexus
@@ -93,10 +94,16 @@ class Real(Nexus._Nexus):
         jar_includes = f"{nexus_dir}:{py4j}:{jssc}:{nexus}"
         args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
         self.jvm = subprocess.Popen(args, stdout=subprocess.PIPE)
+        timeout = 10
+        start_time = time.time()
         for line in iter(self.jvm.stdout.readline, ''):
             if (line.strip() == b'Gateway Server Started'):
                 print(line)
                 break
+            cur_time = time.time()
+            duration = cur_time - start_time
+            if (duration > timeout):
+                print("Failed to start gateway! TIMEOUT")
         self.gateway = JavaGateway()
         java_import(self.gateway.jvm, 'mdt.neuro.nexus.*')
         return
