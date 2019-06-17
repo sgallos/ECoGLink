@@ -60,3 +60,6 @@ class Toggle_Condition(Operation_mode):
             Hardware_output = Output_Command.STOP
         
         return Hardware_output
+
+class Nexus(Device):
+    name = "SLAB_USBtoUART"
