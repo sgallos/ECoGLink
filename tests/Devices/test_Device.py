@@ -4,7 +4,7 @@ import sys
 import pytest
 sys.path.append(os.path.realpath("./"))
 
-from ECoGLink.Devices import Device
+from ECoGLink.Devices import *
 
 def test_Device():
 
