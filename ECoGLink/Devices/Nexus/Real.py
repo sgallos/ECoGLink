@@ -2,9 +2,10 @@
 """
 Created on Fri Jun 14 13:59:17 2019
 
-@author: charl
+@author: charl & Kev-bot
 """
 
+import sys
 import time
 import subprocess
 from py4j.java_gateway import JavaGateway, java_import
@@ -49,7 +50,10 @@ class Real(Nexus._Nexus):
         py4j = f"{nexus_dir}/py4j0.10.8.1.jar" # self.__find_py4j__()
         jssc = f"{nexus_dir}/jssc.jar"
         nexus = f"{nexus_dir}/nexus.jar"
-        jar_includes = f"{nexus_dir}:{py4j}:{jssc}:{nexus}"
+        separator = ";"
+        if sys.platform != "Windows":
+            separator = ":"
+        jar_includes = f"{nexus_dir}{separator}{py4j}{separator}{jssc}{separator}{nexus}"
         args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
 
         # if(self.py4j_loc == None):
