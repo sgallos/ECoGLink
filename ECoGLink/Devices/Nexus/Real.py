@@ -32,13 +32,13 @@ class Real(Nexus._Nexus):
         
         self.__start_jvm__()
         self.inst = self.gateway.jvm.NexusInstrument()
-        # self.s2 = self.gateway.jvm.SerialConnection(self.port)
-        # self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
-        # self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
-        # self.get_status()
-        # self.is_initialized = True if Nexus.Response_Code(self.inst.getLastInsResponseCode()) == Nexus.Response_Code.SUCCESS else False
-        # self.set_configuration(30, 15)
-        # self.start_data_session()
+        self.s2 = self.gateway.jvm.SerialConnection(self.port)
+        self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
+        self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
+        self.get_status()
+        self.is_initialized = True if Nexus.Response_Code(self.inst.getLastInsResponseCode()) == Nexus.Response_Code.SUCCESS else False
+        self.set_configuration(30, 15)
+        self.start_data_session()
         
     def __del__(self):
         if(self.jvm != None):
@@ -51,9 +51,10 @@ class Real(Nexus._Nexus):
         jssc = f"{nexus_dir}/jssc.jar"
         nexus = f"{nexus_dir}/nexus.jar"
         separator = ";"
-        if sys.platform != "Windows":
+        if sys.platform != "win32":
             separator = ":"
         jar_includes = f"{nexus_dir}{separator}{py4j}{separator}{jssc}{separator}{nexus}"
+        print(jar_includes)
         args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
 
         # if(self.py4j_loc == None):
@@ -101,8 +102,18 @@ class Real(Nexus._Nexus):
     def get_data_packet(self):
         # get packet
         # return data packet
-        self.eng.workspace['data_packet_structure'] = self.eng.eval('inst.getDataPacket',nargout = 1)
-        return self.eng.eval("data_packet_structure.get('data')")
+        data_packet_structure = self.inst.getDataPacket()
+        java_data = data_packet_structure.getData()
+        
+        data = []
+        for java_channel_data in java_data:
+            channel_data = []
+            for jdata in java_channel_data:
+                channel_data.append(jdata)
+            
+            data.append(channel_data)
+        
+        return data
     
 
     def stop_data_session(self):
@@ -113,9 +124,9 @@ class Real(Nexus._Nexus):
     def get_data_packet_useable(self):
         # get packet
         # return data packet
-        self.eng.grab_data_pkts(1, nargout = 1)
-        pass
-    
+        self.start_data_session()
+        return self.get_data_packet()
+         
 #    def reset(self):
 #        ser = serial.Serial(self.port, 9600, timeout = 1)
 #        ser.close()
