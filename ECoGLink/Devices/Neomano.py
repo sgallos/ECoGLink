@@ -8,7 +8,7 @@ class State(Enum):
     FLEXED = 1
     EXTENDED = 2
 
-class OutputCommand(Enum):
+class Output_Command(Enum):
     STOP = 0
     FLEX = 1
     EXTEND = 2
@@ -35,9 +35,9 @@ class Continuous_Condition(Operation_mode):
     
     def process(self, BMI_input):
         if BMI_input == Nexus.ClassifiedInput.MOVE:
-            Hardware_output = OutputCommand.FLEX
+            Hardware_output = Output_Command.FLEX
         else:
-            Hardware_output = OutputCommand.EXTEND
+            Hardware_output = Output_Command.EXTEND
         return Hardware_output
 
 #Toggle state
@@ -49,14 +49,14 @@ class Toggle_Condition(Operation_mode):
     
     def process(self, BMI_input):
         if BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.FLEXED:
-            Hardware_output = OutputCommand.FLEX
+            Hardware_output = Output_Command.FLEX
             self.state = State.FLEXED
         elif BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.EXTENDED:
-            Hardware_output = OutputCommand.EXTEND
+            Hardware_output = Output_Command.EXTEND
             self.state = State.EXTENDED
         elif BMI_input == Nexus.ClassifiedInput.REST and self.state == State.FLEXED:
-            Hardware_output = OutputCommand.FLEX
+            Hardware_output = Output_Command.FLEX
         else:
-            Hardware_output = OutputCommand.STOP
+            Hardware_output = Output_Command.STOP
         
         return Hardware_output
