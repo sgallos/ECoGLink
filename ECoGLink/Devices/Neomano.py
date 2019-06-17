@@ -2,6 +2,7 @@
 from enum import Enum
 from .Operation_mode import Operation_mode
 import ECoGLink.Devices.Nexus as Nexus
+from ECoGLink.Devices import Device
 
 class State(Enum):
     STOPPED = 0
@@ -61,5 +62,5 @@ class Toggle_Condition(Operation_mode):
         
         return Hardware_output
 
-class Nexus(Device):
+class Neomano(Device):
     name = "SLAB_USBtoUART"
