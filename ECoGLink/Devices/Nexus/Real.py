@@ -30,7 +30,7 @@ class Real(Nexus._Nexus):
         super().__init__(port)
         
         self.__start_jvm__()
-        # self.inst = self.gateway.jvm.NexusInstrument()
+        self.inst = self.gateway.jvm.NexusInstrument()
         # self.s2 = self.gateway.jvm.SerialConnection(self.port)
         # self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
         # self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
@@ -67,7 +67,7 @@ class Real(Nexus._Nexus):
             duration = cur_time - start_time
             if (duration > timeout):
                 print("Failed to start gateway! TIMEOUT")
-                break
+                raise Exception("Failed to start gateway")
 
         # Start Gateaway
         self.gateway = JavaGateway()
