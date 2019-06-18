@@ -15,21 +15,35 @@ def test_toggle():
     toggle_mode = Neomano.Toggle_Condition(state = Neomano.State.EXTENDED)
     assert toggle_mode.state == Neomano.State.EXTENDED
 
-    # Should change after processing a move
-    toggle_mode.process(Nexus.ClassifiedInput.MOVE)
+    # Should change after processing a move and waiting appropriate time to move it to the fully closed state
+    output, timeout = toggle_mode.process(Nexus.ClassifiedInput.MOVE)
+    assert timeout
+    assert output == Output_Command.FLEX
+    toggle_mode.state = Neomano.State.FLEXED
     assert toggle_mode.state != Neomano.State.EXTENDED
 
     # Shouln't change after processing a rest
-    toggle_mode.process(Nexus.ClassifiedInput.REST)
+    output, timeout = toggle_mode.process(Nexus.ClassifiedInput.REST)
+    assert timeout == False
+    assert output == Output_Command.FLEX
     assert toggle_mode.state != Neomano.State.EXTENDED
 
-    # Moving again should set it back
+    # Moving again should set it back and wait appropriate time then set state to be extended state
     toggle_mode.process(Nexus.ClassifiedInput.MOVE)
+    assert timeout
+    assert output == Output_Command.EXTENDED
+    toggle_mode.state = Neomano.State.EXTEND
     assert toggle_mode.state == Neomano.State.EXTENDED
 
 def test_continuous():
 
     continuous_mode = Neomano.Continuous_Condition()
+    
+    #
+    # If Move signal send out flex
+    # If rest signal send out a stop signal
+    # send out reset signal?
+    #
 
     assert Neomano.Output_Command.FLEX == continuous_mode.process(Nexus.ClassifiedInput.MOVE)
 
@@ -38,6 +52,12 @@ def test_continuous():
 def _test_timed():
 
     timed_mode = Neomano.Timed_Condition(5)
+    
+    #
+    # If move signal, set flex signal till cap
+    # Wait for time to run
+    # Reset flex
+    #
 
     assert Neomano.Output_Command.FLEX == continuous_mode.process(Nexus.ClassifiedInput.MOVE)
     assert Neomano.Output_Command.FLEX == continuous_mode.process(Nexus.ClassifiedInput.MOVE)
@@ -106,8 +126,8 @@ def _test_neomano_setup():
     assert device.name == 'insert device name!' # TODO: Get device name!
     assert device.mode == Neomano.Mode.CONTINUOUS
     assert device.state == Neomano.State.EXTENDED
-    assert device._extend_time == 3 # determine extend time
-    assert device._flex_time == 3 # determine flex time
+    assert device.__extend_time__ == 3 # determine extend time
+    assert device.__flex_time__ == 3 # determine flex time
 
     assert device.is_moving == False
     device.set_flexion(0.25)
