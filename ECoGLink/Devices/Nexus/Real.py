@@ -89,6 +89,9 @@ class Real(Nexus._Nexus):
         if self.port_status != Nexus.Port_Status.CONNECTED and self.port_status != Nexus.Port_Status.ALREADY_CONNECTED:
             return
         
+        if self.get_response_code() == Nexus.Response_Code.NO_INS_CODE_AVAILABLE:
+            return
+        
         alpha = self.inst.getNexusStatus()
         status = Nexus.Status(
             alpha.getState().ordinal(),
