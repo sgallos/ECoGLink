@@ -70,8 +70,6 @@ class _Nexus(ABC):
     @abstractmethod
     def __init__(self, port):
         self.port = port
-        self.jssc_jar_file = "./ECoGLink/Devices/Nexus/jssc.jar"
-        self.nexus_jar_file = "./ECoGLink/Devices/Nexus/nexus.jar"
         pass
     
     @abstractmethod

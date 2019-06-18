@@ -17,18 +17,6 @@ class Real(Nexus._Nexus):
 
     jvm = None
 
-    #
-    #
-    # must haves
-    # one matlab engine open total
-    # one com port to receive signal
-    # one opening of nexus
-    # Jar file location - jssc
-    #
-    #
-    #
-    #
- 
     def __init__(self, port = None):
         super().__init__(port if port != None else self.__detect_com_port__())
         
@@ -45,11 +33,9 @@ class Real(Nexus._Nexus):
     def __del__(self):
         print ('Shutting Down Java')
         if(self.jvm != None):
+            self.gateway.shutdown()
             self.jvm.terminate()
         return
-
-    def get_response_code(self):
-        return Nexus.Response_Code(self.inst.getLastInsResponseCode())
 
     def __detect_com_port__(self):
         port_infos = lp.comports(include_links = True)
@@ -63,18 +49,17 @@ class Real(Nexus._Nexus):
 
     def __start_jvm__(self):
         nexus_dir = "./ECoGLink/Devices/Nexus"
-        py4j = f"{nexus_dir}/py4j0.10.8.1.jar" # self.__find_py4j__()
+        py4j = f"{nexus_dir}/py4j0.10.8.1.jar" 
         jssc = f"{nexus_dir}/jssc.jar"
         nexus = f"{nexus_dir}/nexus.jar"
         separator = ";"
+
         if sys.platform != "win32":
             separator = ":"
-        jar_includes = f"{nexus_dir}{separator}{py4j}{separator}{jssc}{separator}{nexus}"
-        print(jar_includes)
-        args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
 
-        # if(self.py4j_loc == None):
-            # raise Exception('py4j.jar not found - cannot continue interaction with device')
+        jar_includes = f"{nexus_dir}{separator}{py4j}{separator}{jssc}{separator}{nexus}"
+
+        args = ['java', '-cp', jar_includes, 'py4j.examples.NexusEntryPoint']
 
         self.jvm = subprocess.Popen(args, stdout=subprocess.PIPE)
 
@@ -87,13 +72,15 @@ class Real(Nexus._Nexus):
             cur_time = time.time()
             duration = cur_time - start_time
             if (duration > timeout):
-                print("Failed to start gateway! TIMEOUT")
                 raise Exception("Failed to start gateway")
 
         # Start Gateaway
         self.gateway = JavaGateway()
         java_import(self.gateway.jvm, 'mdt.neuro.nexus.*')
         return
+
+    def get_response_code(self):
+        return Nexus.Response_Code(self.inst.getLastInsResponseCode())
 
     def get_status(self):
         # return nexus status
