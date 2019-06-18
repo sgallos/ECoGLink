@@ -16,11 +16,6 @@ class Device(ABC):
         mode = self.mode
         mode.process(signal_input)
 
-    def delay (self, time_input):
-        mode = self.mode
-        mode.delay(time_input)
-
-
     @property
     def mode():
         return self.__mode
