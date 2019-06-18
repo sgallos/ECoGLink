@@ -13,16 +13,6 @@ import ECoGLink.Devices.Nexus as Nexus
 import ECoGLink.Devices.Nexus.Virtual as NVDM
 import ECoGLink.Devices.Nexus.Real as NRDM
 
-# initialize it
-    # check that NexusInstrument is first part of string
-    # check port
-    # check NexusStatus 
-    # get Data packet  
-
-# check NexusStatus
-    
-# get Data packet  
-
 def test_nexus():
 
     # Should fail to initialize
@@ -40,11 +30,17 @@ def test_nexus():
     assert hasattr(Nexus._Nexus, 'stop_data_session') == True
     assert hasattr(Nexus._Nexus, 'get_data_packet') == True
 
+def test_nexus_virtual():
+    nexus_test(NVDM.Virtual)
+    
+def test_nexus_real():
+    nexus_test(NRDM.Real)
+
+#############################################################################
+
 def nexus_test(cls):
     
-    # Validate nexus initializtion
-    port = 'COM5'   # Device.Find device port 
-    NVD = cls(port = port)
+    NVD = cls()
 
     # We should run a separate set of tests if the device is not connected
     if NVD.is_initialized == False:
@@ -58,12 +54,9 @@ def nexus_connected_tests(NVD):
 
     assert NVD.is_initialized == True
     assert NVD.port_status == Nexus.Port_Status.CONNECTED
-    # Need an assertion for the state
-    assert (NVD.get_state() != Nexus.State.LINK_FAILED_NO_RESPONSE) and (NVD.get_state() != Nexus.State.LINK_FAILED_DEVICE_ERR)
-    
-    # Need an assertion for the Status of the Nexus
-    assert NVD.get_status().State == Nexus.State != 3 or 2
-    assert NVD.get_status().BatteryPercent == 1.0 or 0.75 or 0.5 or 0.25
+
+    assert NVD.get_status().State not in [Nexus.State.LINK_FAILED_DEVICE_ERR, Nexus.State.LINK_FAILED_NO_RESPONSE]
+    assert NVD.get_status().BatteryPercent in [1.0, 0.75, 0.5, 0.25]
     assert isinstance(NVD.get_status().HostTimeoutMinutes, int)
     assert isinstance(NVD.get_status().MaintenanceTimeoutSeconds, int)
     assert NVD.get_status().BatteryDepleted == False
@@ -75,6 +68,7 @@ def nexus_connected_tests(NVD):
 
     # Need start_data_session validation!
     assert NVD.start_data_session() != -1
+    assert NVD.stop_data_session() != -1
 
     # Validate that the structure returned data packet is [80, 2, 80, 2]
     data_packet = NVD.get_data_packet()
@@ -87,6 +81,8 @@ def nexus_connected_tests(NVD):
     assert type(data_packet[1][0]) == int
     assert type(data_packet[2][0]) == int
     assert type(data_packet[3][0]) == int
+
+    assert NVD.connect() == Nexus.Port_Status.ALREADY_CONNECTED
     assert NVD.disconnect() == 0
     assert NVD.connect() == Nexus.Port_Status.CONNECTED
     
@@ -98,9 +94,4 @@ def nexus_disconnected_tests(NVD):
     assert NVD.port_status == Nexus.Port_Status.NOT_FOUND
     return
     
-def test_nexus_virtual():
-    nexus_test(NVDM.Virtual)
-    
-def test_nexus_real():
-    nexus_test(NRDM.Real)
     

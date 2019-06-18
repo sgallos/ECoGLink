@@ -19,6 +19,9 @@ class Real(Nexus._Nexus):
 
     def __init__(self, port = None):
         super().__init__(port if port != None else self.__detect_com_port__())
+
+        if self.port == None:
+            return
         
         self.__start_jvm__()
         self.inst = self.gateway.jvm.NexusInstrument()
@@ -41,7 +44,6 @@ class Real(Nexus._Nexus):
         port_infos = lp.comports(include_links = True)
         potential_nexus_port_info = list(filter(lambda x: x.pid == self.product_id and x.vid == self.vendor_id, port_infos))
         if len(potential_nexus_port_info) < 1:
-            raise Exception ('THE COM_PORT WAS NOT FOUND')
             return
 
         nexus_port_info = potential_nexus_port_info[0]

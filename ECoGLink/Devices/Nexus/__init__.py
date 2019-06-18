@@ -68,7 +68,7 @@ class _Nexus(ABC):
     product_id = 8963
     
     @abstractmethod
-    def __init__(self, port):
+    def __init__(self, port = None):
         self.port = port
         pass
     

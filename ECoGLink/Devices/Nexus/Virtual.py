@@ -9,11 +9,15 @@ import ECoGLink.Devices.Nexus as Nexus
 
 class Virtual(Nexus._Nexus):
 
-    def __init__(self, port):
+    def __init__(self, port = None):
+        super().__init__(port)
         self.is_initialized = True
         self.port_status = Nexus.Port_Status.CONNECTED
         return
     
+    def __del__(self):
+        return
+
     def get_data_packet(self):
         ch1 = [0]*80
         ch2 = [0]*2
@@ -35,16 +39,15 @@ class Virtual(Nexus._Nexus):
 
     def stop_data_session(self):
         return 108
-    def __del__(self):
-        return
+
     def connect(self):
         # Connect to device
-        self.port_status = Nexus.Port_Status.CONNECTED
+        if self.port_status != Nexus.Port_Status.CONNECTED:
+            self.port_status = Nexus.Port_Status.CONNECTED
+        elif self.port_status == Nexus.Port_Status.CONNECTED:
+            self.port_status = Nexus.Port_Status.ALREADY_CONNECTED
         return self.port_status
     
     def disconnect(self):
         # Disconnect to device
-     
         return 0
-        
-        return
