@@ -30,32 +30,37 @@ class Real(Nexus._Nexus):
     #
     #
  
-    def __init__(self, port):
-        super().__init__(port)
+    def __init__(self, port = None):
+        super().__init__(port if port != None else self.__detect_com_port__())
         
         self.__start_jvm__()
         self.inst = self.gateway.jvm.NexusInstrument()
-        self.s2 = self.gateway.jvm.SerialConnection(self.port)
-        self.port_status = Nexus.Port_Status(self.inst.connect(self.s2))
+        self.serialport = self.gateway.jvm.SerialConnection(self.port)
+        self.port_status = self.connect()
         self.provider = self.gateway.jvm.ThreadedNexusInstrument(self.inst)
         self.get_status()
-        self.is_initialized = True if Nexus.Response_Code(self.inst.getLastInsResponseCode()) == Nexus.Response_Code.SUCCESS else False
+        self.is_initialized = True if self.get_response_code() == Nexus.Response_Code.SUCCESS else False
         self.set_configuration(30, 15)
         self.start_data_session()
         
     def __del__(self):
+        print ('Shutting Down Java')
         if(self.jvm != None):
             self.jvm.terminate()
         return
 
-    def __detect_com_port(self):
+    def get_response_code(self):
+        return Nexus.Response_Code(self.inst.getLastInsResponseCode())
+
+    def __detect_com_port__(self):
         port_infos = lp.comports(include_links = True)
         potential_nexus_port_info = list(filter(lambda x: x.pid == self.product_id and x.vid == self.vendor_id, port_infos))
         if len(potential_nexus_port_info) < 1:
+            raise Exception ('THE COM_PORT WAS NOT FOUND')
             return
 
         nexus_port_info = potential_nexus_port_info[0]
-        return nexus_port_info.location
+        return nexus_port_info.device
 
     def __start_jvm__(self):
         nexus_dir = "./ECoGLink/Devices/Nexus"
@@ -93,7 +98,19 @@ class Real(Nexus._Nexus):
 
     def get_status(self):
         # return nexus status
-        return self.inst.getNexusStatus()
+        if self.port_status != Nexus.Port_Status.CONNECTED and self.port_status != Nexus.Port_Status.ALREADY_CONNECTED:
+            return
+        
+        alpha = self.inst.getNexusStatus()
+        status = Nexus.Status(
+            alpha.getState().ordinal(),
+            alpha.getMajorVersion(),
+            alpha.getMinorVersion(),
+            alpha.getBatteryPercent(),
+            alpha.isBatteryDepleted(),
+            alpha.getHostTimeoutMinutes(),
+            alpha.getMaintenanceTimeoutSeconds())
+        return status
     
 
     def set_configuration(self, main_session_timeout, host_session_timeout):
@@ -103,7 +120,7 @@ class Real(Nexus._Nexus):
         return self.inst.setNexusConfiguration(main_session_timeout, host_session_timeout)
     
     def get_state(self):
-        return
+        return self.get_status().State
 
     def start_data_session(self):
         # start data collection stream
@@ -138,7 +155,22 @@ class Real(Nexus._Nexus):
         # return data packet
         self.start_data_session()
         return self.get_data_packet()
-         
+   
+    def connect(self):
+        # Connect to device
+        self.port_status = Nexus.Port_Status(self.inst.connect(self.serialport))
+        return self.port_status
+    
+    def disconnect(self):
+        # Disconnect to device
+        result = self.inst.disconnect()
+        if(result == 0):
+            self.port_status = Nexus.Port_Status.NOT_FOUND
+        if(result == -1):
+            # TODO add what happens here if fails to disconnect
+            pass
+        return result
+          
 #    def reset(self):
 #        ser = serial.Serial(self.port, 9600, timeout = 1)
 #        ser.close()

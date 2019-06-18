@@ -21,13 +21,13 @@ class State(Enum):
 class Status():
     def __init__(self, state, majorVersion, minorVersion, batteryPercent,
             batteryDepleted, hostTimeoutMinutes, maintenanceTimeoutSeconds):
-        self.state = state 
-        self.majorVersion = majorVersion 
-        self.minorVersion = minorVersion 
-        self.batteryPercent = batteryPercent 
-        self.batteryDepleted = batteryDepleted 
-        self.hostTimeoutMinutes = hostTimeoutMinutes 
-        self.maintenanceTimeoutSeconds = maintenanceTimeoutSeconds 
+        self.State = state 
+        self.MajorVersion = majorVersion 
+        self.MinorVersion = minorVersion 
+        self.BatteryPercent = batteryPercent 
+        self.BatteryDepleted = batteryDepleted 
+        self.HostTimeoutMinutes = hostTimeoutMinutes 
+        self.MaintenanceTimeoutSeconds = maintenanceTimeoutSeconds 
     
 class Port_Status(Enum):
     CONNECTED = 0.0

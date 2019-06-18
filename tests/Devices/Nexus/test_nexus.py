@@ -2,7 +2,7 @@
 """
 Created on Fri Jun 14 11:25:38 2019
 
-@author: charl
+@author: Charlie & Kevin
 """
 
 import os 
@@ -60,7 +60,16 @@ def nexus_connected_tests(NVD):
     assert NVD.port_status == Nexus.Port_Status.CONNECTED
     # Need an assertion for the state
     assert (NVD.get_state() != Nexus.State.LINK_FAILED_NO_RESPONSE) and (NVD.get_state() != Nexus.State.LINK_FAILED_DEVICE_ERR)
-
+    
+    # Need an assertion for the Status of the Nexus
+    assert NVD.get_status().State == Nexus.State != 3 or 2
+    assert NVD.get_status().BatteryPercent == 1.0 or 0.75 or 0.5 or 0.25
+    assert isinstance(NVD.get_status().HostTimeoutMinutes, int)
+    assert isinstance(NVD.get_status().MaintenanceTimeoutSeconds, int)
+    assert NVD.get_status().BatteryDepleted == False
+    assert isinstance(NVD.get_status().MajorVersion, int)
+    assert isinstance(NVD.get_status().MinorVersion, int)
+    
     # Need a validation for set_configureation!
     assert NVD.set_configuration(10, 10) != -1
 
@@ -74,16 +83,19 @@ def nexus_connected_tests(NVD):
     assert len(data_packet[2]) == 80
     assert len(data_packet[3]) == 2
     
-    assert type(data_packet[0][0][0]) == int
-    assert type(data_packet[1][0][0]) == int
-    assert type(data_packet[2][0][0]) == int
-    assert type(data_packet[3][0][0]) == int
-
+    assert type(data_packet[0][0]) == int
+    assert type(data_packet[1][0]) == int
+    assert type(data_packet[2][0]) == int
+    assert type(data_packet[3][0]) == int
+    assert NVD.disconnect() == 0
+    assert NVD.connect() == Nexus.Port_Status.CONNECTED
+    
+    NVD.__del__()
     return
 
 def nexus_disconnected_tests(NVD):
     assert NVD.is_initialized == False
-    assert NVD.port_status == Nexus.Port_Status.CONNECTED
+    assert NVD.port_status == Nexus.Port_Status.NOT_FOUND
     return
     
 def test_nexus_virtual():
@@ -91,3 +103,4 @@ def test_nexus_virtual():
     
 def test_nexus_real():
     nexus_test(NRDM.Real)
+    
