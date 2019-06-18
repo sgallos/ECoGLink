@@ -65,7 +65,8 @@ class _Nexus(ABC):
 
     is_initialized = False
     port_status = Port_Status.NOT_FOUND
-
+    vendor_id = 1659
+    product_id = 8963
     
     @abstractmethod
     def __init__(self, port):
