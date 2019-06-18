@@ -30,15 +30,32 @@ Created on Wed Jun 12 10:28:52 2019
 #Continuous state
 class Continuous_Condition(Operation_mode):
     
-    
     def __init__(self):
         return
-    
+   
+        
     def process(self, BMI_input):
         if BMI_input == Nexus.ClassifiedInput.MOVE:
             Hardware_output = Output_Command.FLEX
         else:
             Hardware_output = Output_Command.EXTEND
+        return Hardware_output
+   
+
+#Timed state
+class Timed_Condition(Operation_mode):
+    
+    def __init__(self, delay):
+        self.delay = delay
+        return
+ 
+    def process(self, BMI_input):
+        if BMI_input == Nexus.ClassifiedInput.MOVE:
+            Hardware_output = Output_Command.FLEX
+        elif BMI_input == Nexus.ClassifiedInput.REST:
+            Hardware_output = Output_Command.EXTEND
+        #elif BMI_input == Nexus.ClassifiedInput.REST:
+           # Hardware_output = Output_Command.FLEX
         return Hardware_output
 
 #Toggle state

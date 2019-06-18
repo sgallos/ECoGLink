@@ -39,10 +39,11 @@ def _test_timed():
 
     timed_mode = Neomano.Timed_Condition(5)
 
-    assert Neomano.Output_Command.FLEX == continuous_mode.process(Nexus.ClassifiedInput.MOVE)
-    assert Neomano.Output_Command.FLEX == continuous_mode.process(Nexus.ClassifiedInput.MOVE)
+    assert Neomano.Output_Command.FLEX == timed_mode.process(Nexus.ClassifiedInput.MOVE)
+    assert Neomano.Output_Command.FLEX == timed_mode.process(Nexus.ClassifiedInput.MOVE)
     time.sleep(timed_mode.delay)
-    assert Neomano.Output_Command.EXTEND == continuous_mode.process(Nexus.ClassifiedInput.MOVE)
+    #time.sleep(timed_mode.delay)
+    assert Neomano.Output_Command.EXTEND == timed_mode.process(Nexus.ClassifiedInput.MOVE)
 
     return
 
