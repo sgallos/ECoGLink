@@ -110,9 +110,7 @@ class Real(Nexus._Nexus):
 
     def start_data_session(self):
         # start data collection stream
-        self.inst.startDataSession()
-        return
-    
+        return self.inst.startDataSession()
 
     def get_data_packet(self):
         # get packet
@@ -129,12 +127,10 @@ class Real(Nexus._Nexus):
             data.append(channel_data)
         
         return data
-    
 
     def stop_data_session(self):
         # end the data session
-        self.eng.eval('inst.stopDataSession')
-        pass
+        return self.inst.stopDataSession()
 
     def get_data_packet_useable(self):
         # get packet
@@ -156,7 +152,3 @@ class Real(Nexus._Nexus):
             # TODO add what happens here if fails to disconnect
             pass
         return result
-          
-#    def reset(self):
-#        ser = serial.Serial(self.port, 9600, timeout = 1)
-#        ser.close()
