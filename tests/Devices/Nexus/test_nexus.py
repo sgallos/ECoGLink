@@ -83,7 +83,6 @@ def nexus_connected_tests(NVD):
 
 def nexus_disconnected_tests(NVD):
     assert NVD.is_initialized == False
-    # We need a way to auto search for the device!!!
     assert NVD.port_status == Nexus.Port_Status.CONNECTED
     return
     

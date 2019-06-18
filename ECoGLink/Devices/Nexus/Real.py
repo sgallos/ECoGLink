@@ -8,6 +8,9 @@ Created on Fri Jun 14 13:59:17 2019
 import sys
 import time
 import subprocess
+import serial
+import serial.tools.list_ports as lp
+
 from py4j.java_gateway import JavaGateway, java_import
 import ECoGLink.Devices.Nexus as Nexus
 
@@ -44,6 +47,15 @@ class Real(Nexus._Nexus):
         if(self.jvm != None):
             self.jvm.terminate()
         return
+
+    def __detect_com_port(self):
+        port_infos = lp.comports(include_links = True)
+        potential_nexus_port_info = list(filter(lambda x: x.pid == self.product_id and x.vid == self.vendor_id, port_infos))
+        if len(potential_nexus_port_info) < 1:
+            return
+
+        nexus_port_info = potential_nexus_port_info[0]
+        return nexus_port_info.location
 
     def __start_jvm__(self):
         nexus_dir = "./ECoGLink/Devices/Nexus"

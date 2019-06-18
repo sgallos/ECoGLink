@@ -1,2 +1,3 @@
 pytest
 py4j
+pyserial
