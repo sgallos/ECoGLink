@@ -68,7 +68,6 @@ def nexus_connected_tests(NVD):
 
     # Need start_data_session validation!
     assert NVD.start_data_session() != -1
-    assert NVD.stop_data_session() != -1
 
     # Validate that the structure returned data packet is [80, 2, 80, 2]
     data_packet = NVD.get_data_packet()
@@ -81,7 +80,7 @@ def nexus_connected_tests(NVD):
     assert type(data_packet[1][0]) == int
     assert type(data_packet[2][0]) == int
     assert type(data_packet[3][0]) == int
-
+    
     assert NVD.connect() == Nexus.Port_Status.ALREADY_CONNECTED
     assert NVD.disconnect() == 0
     assert NVD.connect() == Nexus.Port_Status.CONNECTED
