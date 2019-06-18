@@ -23,7 +23,7 @@ class Mode(Enum):
 """
 Created on Wed Jun 12 10:28:52 2019
 
-@author: charl
+@author: Charlie
 """
 
 #Continuous state
@@ -50,10 +50,10 @@ class Toggle_Condition(Operation_mode):
     def process(self, BMI_input):
         if BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.FLEXED:
             Hardware_output = Output_Command.FLEX
-            self.state = State.FLEXED
+          
         elif BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.EXTENDED:
             Hardware_output = Output_Command.EXTEND
-            self.state = State.EXTENDED
+            
         elif BMI_input == Nexus.ClassifiedInput.REST and self.state == State.FLEXED:
             Hardware_output = Output_Command.FLEX
         else:
@@ -61,5 +61,5 @@ class Toggle_Condition(Operation_mode):
         
         return Hardware_output
 
-class Nexus(Device):
+class Neomano(Device):
     name = "SLAB_USBtoUART"
