@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 Created on Fri Jun 14 13:59:17 2019
 
-@author: charl & Kev-bot
+@author: Charlie & Kevin
 """
 
 import sys
