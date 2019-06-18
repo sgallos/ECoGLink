@@ -59,32 +59,32 @@ def nexus_connected_tests(NVD):
     assert NVD.is_initialized == True
     assert NVD.port_status == Nexus.Port_Status.CONNECTED
     # Need an assertion for the state
-    # assert (NVD.get_state() != Nexus.State.LINK_FAILED_NO_RESPONSE) and (NVD.get_state() != Nexus.State.LINK_FAILED_DEVICE_ERROR)
+    assert (NVD.get_state() != Nexus.State.LINK_FAILED_NO_RESPONSE) and (NVD.get_state() != Nexus.State.LINK_FAILED_DEVICE_ERR)
 
     # Need a validation for set_configureation!
     assert NVD.set_configuration(10, 10) != -1
 
     # Need start_data_session validation!
-    assert NVD.start_data_session(10, 10) != -1
+    assert NVD.start_data_session() != -1
 
     # Validate that the structure returned data packet is [80, 2, 80, 2]
-    # data_packet = NVD.get_data_packet()
-    # assert len(data_packet[0]) == 80
-    # assert len(data_packet[1]) == 2
-    # assert len(data_packet[2]) == 80
-    # assert len(data_packet[3]) == 2
+    data_packet = NVD.get_data_packet()
+    assert len(data_packet[0]) == 80
+    assert len(data_packet[1]) == 2
+    assert len(data_packet[2]) == 80
+    assert len(data_packet[3]) == 2
     
-    # assert type(data_packet[0][0][0]) == int
-    # assert type(data_packet[1][0][0]) == int
-    # assert type(data_packet[2][0][0]) == int
-    # assert type(data_packet[3][0][0]) == int
+    assert type(data_packet[0][0][0]) == int
+    assert type(data_packet[1][0][0]) == int
+    assert type(data_packet[2][0][0]) == int
+    assert type(data_packet[3][0][0]) == int
 
     return
 
 def nexus_disconnected_tests(NVD):
     assert NVD.is_initialized == False
     # We need a way to auto search for the device!!!
-    # assert NVD.port_status == Nexus.Port_Status.CONNECTED
+    assert NVD.port_status == Nexus.Port_Status.CONNECTED
     return
     
 def test_nexus_virtual():

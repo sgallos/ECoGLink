@@ -57,7 +57,7 @@ class Response_Code(Enum):
 Created on Thu Jun 13 15:42:05 2019
 
 @author: charl & Kevin
-@note: State is a avlue of the State enumeration. Status is a dictionary of
+@note: State is a value of the State enumeration. Status is a dictionary of
 values that includes state, battery life, etc. See Java files for more detail
 """
 
