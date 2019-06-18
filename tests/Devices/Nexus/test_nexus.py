@@ -43,7 +43,7 @@ def nexus_test(cls):
     NVD = cls()
 
     # We should run a separate set of tests if the device is not connected
-    if NVD.is_initialized == False:
+    if NVD.port_status != Nexus.Port_Status.CONNECTED:
         nexus_disconnected_tests(NVD)
     else:
         nexus_connected_tests(NVD)
@@ -52,6 +52,10 @@ def nexus_test(cls):
     
 def nexus_connected_tests(NVD):
 
+    if not NVD.is_initialized:
+        print("Device is connected but turned off")
+        return
+    
     assert NVD.is_initialized == True
     assert NVD.port_status == Nexus.Port_Status.CONNECTED
 
