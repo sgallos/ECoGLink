@@ -29,10 +29,10 @@ def test_toggle():
     assert toggle_mode.state != Neomano.State.EXTENDED
 
     # Moving again should set it back and wait appropriate time then set state to be extended state
-    toggle_mode.process(Nexus.ClassifiedInput.MOVE)
+    output, timeout = toggle_mode.process(Nexus.ClassifiedInput.MOVE)
     assert timeout == True
-    assert output == Neomano.Output_Command.EXTENDED
-    toggle_mode.state = Neomano.State.EXTEND
+    assert output == Neomano.Output_Command.EXTEND
+    toggle_mode.state = Neomano.State.EXTENDED
     assert toggle_mode.state == Neomano.State.EXTENDED
 
 def test_continuous():
@@ -128,7 +128,7 @@ def _test_modular():
 
 # Because we receive no input from the neomano, we'll stick with one interface
 # rather than building a real and virtual device
-def _test_neomano_setup():
+def test_neomano_setup():
 
     # Neomano must inherit from the Device class
     assert Neomano.Neomano.__base__.__name__ == 'Device'
@@ -153,7 +153,6 @@ def _test_neomano_setup():
     assert hasattr(Neomano.Neomano, 'time_step')
     assert hasattr(Neomano.Neomano, 'number_step')
     assert hasattr(Neomano.Neomano, 'total_step')
-    assert hasattr(Neomano.Neomano, 'mode')
 
     device = Neomano.Neomano()
 
