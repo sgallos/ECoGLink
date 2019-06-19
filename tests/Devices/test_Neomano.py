@@ -78,7 +78,7 @@ def test_timed():
 
     return
 
-def _test_modular():
+def test_modular():
 
     modular_mode = Neomano.Modular_Condition()
     

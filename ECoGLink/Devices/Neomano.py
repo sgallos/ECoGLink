@@ -43,27 +43,43 @@ class Continuous_Condition(Operation_mode):
         if BMI_input == Nexus.ClassifiedInput.MOVE:
             Hardware_output = Output_Command.FLEX
             timeout = False
-        else:
+        elif BMI_input == Nexus.ClassifiedInput.REST:
             Hardware_output = Output_Command.EXTEND
-        return Hardware_output
+            timeout = False
+        return Hardware_output, timeout
    
 
 #Timed state
 class Timed_Condition(Operation_mode):
     
-    def __init__(self, delay):
-        self.delay = delay
+    def __init__(self):
+        #self.delay = delay
         return
  
     def process(self, BMI_input):
         if BMI_input == Nexus.ClassifiedInput.MOVE:
             Hardware_output = Output_Command.FLEX
+            timeout = True
         elif BMI_input == Nexus.ClassifiedInput.REST:
             Hardware_output = Output_Command.EXTEND
-        #elif BMI_input == Nexus.ClassifiedInput.REST:
-           # Hardware_output = Output_Command.FLEX
-        return Hardware_output
+            timeout = False
+        return Hardware_output, timeout
 
+#Modular state    
+class Modular_Condition(Operation_mode):
+    
+    def __init__(self):
+        #self.delay = delay
+        return
+ 
+    def process(self, BMI_input):
+        if BMI_input == Nexus.ClassifiedInput.MOVE:
+            Hardware_output = Output_Command.FLEX
+            timeout = True
+        elif BMI_input == Nexus.ClassifiedInput.REST:
+            Hardware_output = Output_Command.EXTEND
+            timeout = False
+        return Hardware_output, timeout
 #Toggle state
 class Toggle_Condition(Operation_mode):
     
