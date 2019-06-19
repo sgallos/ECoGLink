@@ -191,6 +191,7 @@ def _test_neomano_setup():
     # Check full run of timed
     device.mode = Neomano.Mode.TIMED
     device.time_start = 1
+    device.time_left = -1
     device.process(Nexus.ClassifiedInput.MOVE)
     assert device.state == Neomano.State.FLEXED
     assert device.time_left < 1

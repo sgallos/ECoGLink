@@ -78,24 +78,24 @@ class Toggle_Condition(Operation_mode):
         return Hardware_output, timeout
 
 
-class Neomano(Device):
-    name = "SLAB_USBtoUART"
-    __flex_time__ = 3
-    __extend_time__ = 3
-    
-    modes = [toggle, continuous, timed, modular]
-    
-    mode = mode[0]
-    
-    def process(NexusInput):
-        output, timout = self.get_mode().process(NexusInput)
+class Neomano( #Device
+        ):
+#    name = "SLAB_USBtoUART"
+#    __flex_time__ = 3
+#    __extend_time__ = 3
+#    
+#    modes = [toggle, continuous, timed, modular]
+#    
+#    mode = mode[0]
+#    
+#    def process(NexusInput):
+#        output, timout = self.get_mode().process(NexusInput)
         
-        
+        pass
 
     
 # Time based state
 class Time_Based_Condition():
-    
     
     def __init__(self, time_left):
         self.time_left = time_left
@@ -103,15 +103,15 @@ class Time_Based_Condition():
     
     def process(self, BMI_input, increment):
         if BMI_input == 1:
-            if time_left != 0:
+            if self.time_left != 0:
                 Hardware_output = 1
-                time_left = time_left - increment
+                self.time_left = self.time_left - increment
                 return
-            elif time_left == 0:
+            elif self.time_left == 0:
                 Hardware_output = 0
                 return
         elif BMI_input == 0:
-            if time_left != 0:
+            if self.time_left != 0:
                 Hardware_output = 1
             Hardware_output = 0
-
+            return Hardware_output
