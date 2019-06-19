@@ -41,16 +41,17 @@ class Continuous_Condition(Operation_mode):
         #
         if BMI_input == Nexus.ClassifiedInput.MOVE:
             Hardware_output = Output_Command.FLEX
+            timeout = False
         else:
             Hardware_output = Output_Command.EXTEND
-        return Hardware_output
+            timeout = False
+        return Hardware_output, timeout
 
 #Toggle state
 class Toggle_Condition(Operation_mode):
     
-    def __init__(self, state = State.STOPPED , delay):
+    def __init__(self, state):
         self.state = state
-        self.delay = delay
         return
     
     def process(self, BMI_input):
