@@ -1,12 +1,23 @@
 
 from enum import Enum
 from .Operation_mode import Operation_mode
+from ECoGLink.Devices import Device
 import ECoGLink.Devices.Nexus as Nexus
+import time
 
-class State(Enum):
+class State():
     STOPPED = 0
     FLEXED = 1
     EXTENDED = 2
+    
+    def __init__(self, initValue = STOPPED):
+        self.__state = initValue
+    
+    def set(self, newValue):
+        self.__state = newValue
+        
+    def get(self):
+        return self.__state
 
 class Output_Command(Enum):
     STOP = 0
@@ -23,7 +34,7 @@ class Mode(Enum):
 """
 Created on Wed Jun 12 10:28:52 2019
 
-@author: Charlie
+@author: Charlie & Kevin
 """
 
 #Continuous state
@@ -50,8 +61,9 @@ class Continuous_Condition(Operation_mode):
 #Toggle state
 class Toggle_Condition(Operation_mode):
     
-    def __init__(self, state):
-        self.state = state
+    def __init__(self, DeviceStateRef):
+        self.state = DeviceStateRef
+        print("New Toggle Condition")
         return
     
     def process(self, BMI_input):
@@ -60,29 +72,87 @@ class Toggle_Condition(Operation_mode):
         # If Move signal and prior was previously flexed extend to origin
         # If Rest signal maintain current state of flexion
         #
-        if BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.FLEXED:
+        if BMI_input == Nexus.ClassifiedInput.MOVE and self.state.get() == State.EXTENDED:
             Hardware_output = Output_Command.FLEX
             timeout = True
           
-        elif BMI_input == Nexus.ClassifiedInput.MOVE and self.state != State.EXTENDED:
+        elif BMI_input == Nexus.ClassifiedInput.MOVE and self.state.get() == State.FLEXED:
             Hardware_output = Output_Command.EXTEND
             timeout = True
             
-        elif BMI_input == Nexus.ClassifiedInput.REST and self.state == State.FLEXED:
+        elif BMI_input == Nexus.ClassifiedInput.REST and self.state.get() == State.FLEXED:
             Hardware_output = Output_Command.FLEX
             timeout = False
-        else:
-            Hardware_output = Output_Command.STOP
+        elif BMI_input == Nexus.ClassifiedInput.REST and self.state.get() == State.EXTENDED:
+            Hardware_output = Output_Command.EXTEND
             timeout = False
         
         return Hardware_output, timeout
 
 
-class Neomano( #Device
-        ):
-#    name = "SLAB_USBtoUART"
-#    __flex_time__ = 3
-#    __extend_time__ = 3
+class Neomano(Device):
+    
+    name = 'SLAB_USBtoUART'
+    __flex_time = 1
+    __extend_time = 1
+    
+    def __init__(self):     
+        self.state = State(State.EXTENDED)
+        self.toggle_state = False
+        self.time_start = 0
+        self.timeout = False
+        self.time_remaining = 0
+        self.time_condition_delay = 1
+        self.time_step = 0
+        self.number_step = 0
+        self.total_step = 0
+        self.mode = Mode.CONTINUOUS
+        self.modes = {
+                Mode.CONTINUOUS: Continuous_Condition(),
+                Mode.TOGGLE: Toggle_Condition(self.state),
+                Mode.TIMED: Time_Based_Condition()
+                }
+        
+    def stop(self):
+        pass
+    
+    def is_connected():
+        pass
+    
+    def process(self, signal_input):
+            
+        condition = self.modes[self.mode]
+        hardward_output, timeoutpro = condition.process(signal_input)
+        ############### fix this shit#############
+        if self.mode == Mode.TOGGLE:
+            if hardward_output == Output_Command.FLEX:
+                self.state.set(State.FLEXED)
+            elif hardward_output == Output_Command.EXTEND:
+                self.state.set(State.EXTENDED)
+            self.timeout = timeoutpro
+            if self.timeout == True:
+                time.sleep(1)
+                if self.toggle_state == False:
+                    self.toggle_state = True
+                else:
+                    self.toggle_state = False
+        if self.mode == Mode.CONTINUOUS:
+            if hardward_output == Output_Command.FLEX:
+                self.state.set(State.FLEXED)
+            elif hardward_output == Output_Command.EXTEND:
+                self.state.set(State.EXTENDED)
+        if self.mode == Mode.TIMED:
+            self.timeout = timeoutpro
+            if self.timeout == True:
+                if hardward_output == Output_Command.FLEX:
+                    time.sleep(self.__flex_time)
+                    time.sleep(self.time_condition_delay)
+                    time.sleep(self.__extend_time)
+                    self.state.set(State.EXTENDED)
+            if hardward_output == Output_Command.EXTEND:
+                self.state.set(State.EXTENDED)
+        return
+
 #    
 #    modes = [toggle, continuous, timed, modular]
 #    
@@ -94,24 +164,21 @@ class Neomano( #Device
         pass
 
     
-# Time based state
+# Time based stated
 class Time_Based_Condition():
-    
-    def __init__(self, time_left):
-        self.time_left = time_left
+    # rewrite condition to account for sleeping
+    def __init__(self):
+        
         return
     
-    def process(self, BMI_input, increment):
-        if BMI_input == 1:
-            if self.time_left != 0:
-                Hardware_output = 1
-                self.time_left = self.time_left - increment
-                return
-            elif self.time_left == 0:
-                Hardware_output = 0
-                return
-        elif BMI_input == 0:
-            if self.time_left != 0:
-                Hardware_output = 1
-            Hardware_output = 0
-            return Hardware_output
+    def process(self, BMI_input):
+        if BMI_input == Nexus.ClassifiedInput.REST:
+                Hardware_output = Output_Command.EXTEND
+                timeout = False
+            
+        elif BMI_input == Nexus.ClassifiedInput.MOVE:
+                Hardware_output = Output_Command.FLEX
+                timeout = True
+            
+            
+        return Hardware_output, timeout

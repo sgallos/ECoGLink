@@ -9,31 +9,32 @@ sys.path.append(os.path.realpath('./'))
 import ECoGLink.Devices.Neomano as Neomano
 import ECoGLink.Devices.Nexus as Nexus
 
-def test_toggle():
+def _test_toggle():
 
     # Should initialize to the state you set
-    toggle_mode = Neomano.Toggle_Condition(state = Neomano.State.EXTENDED)
-    assert toggle_mode.state == Neomano.State.EXTENDED
+    state = Neomano.State()
+    toggle_mode = Neomano.Toggle_Condition(state)
+    assert toggle_mode.state.get() == Neomano.State.EXTENDED
 
     # Should change after processing a move and waiting appropriate time to move it to the fully closed state
     output, timeout = toggle_mode.process(Nexus.ClassifiedInput.MOVE)
     assert timeout == True
     assert output == Neomano.Output_Command.FLEX
     toggle_mode.state = Neomano.State.FLEXED
-    assert toggle_mode.state != Neomano.State.EXTENDED
+    assert toggle_mode.state.get() != Neomano.State.EXTENDED
 
     # Shouln't change after processing a rest
     output, timeout = toggle_mode.process(Nexus.ClassifiedInput.REST)
     assert timeout == False
     assert output == Neomano.Output_Command.FLEX
-    assert toggle_mode.state != Neomano.State.EXTENDED
+    assert toggle_mode.state.get() != Neomano.State.EXTENDED
 
     # Moving again should set it back and wait appropriate time then set state to be extended state
     output, timeout = toggle_mode.process(Nexus.ClassifiedInput.MOVE)
     assert timeout == True
     assert output == Neomano.Output_Command.EXTEND
     toggle_mode.state = Neomano.State.EXTENDED
-    assert toggle_mode.state == Neomano.State.EXTENDED
+    assert toggle_mode.state.get() == Neomano.State.EXTENDED
 
 def test_continuous():
 
@@ -54,9 +55,9 @@ def test_continuous():
     assert output == Neomano.Output_Command.EXTEND
     assert timeout == False
 
-def _test_timed():
+def test_timed():
 
-    timed_mode = Neomano.Timed_Condition()
+    timed_mode = Neomano.Time_Based_Condition()
     
     #
     # If move signal, set flex signal till cap
@@ -67,7 +68,13 @@ def _test_timed():
     #
     
     # check move command given
+    #time stamp before
+    ts1 = time.time()
     output, timeout = timed_mode.process(Nexus.ClassifiedInput.MOVE)
+    # timestamp
+    # timestamp diff must be flexion_time+delay+Extension_time
+    ts2 = time.time()
+    #assert ts2-ts1 == Device._Neomano__flex_time + Device._Neomano__extend_time + Neomano.delay
     assert output == Neomano.Output_Command.FLEX
     assert timeout == True
   
@@ -134,81 +141,79 @@ def test_neomano_setup():
     assert Neomano.Neomano.__base__.__name__ == 'Device'
 
     # Validate that the Neomano class has the following properties and methods
-    assert hasattr(Neomano.Neomano, 'set_flexion')
-    assert hasattr(Neomano.Neomano, 'flex_percent')
     assert hasattr(Neomano.Neomano, 'stop')
-    assert hasattr(Neomano.Neomano, '_prev_flex_percent_request')
-    assert hasattr(Neomano.Neomano, '_prev_flex_percent_request_time')
-    assert hasattr(Neomano.Neomano, '_flex_time')
-    assert hasattr(Neomano.Neomano, '_extend_time')
-    assert hasattr(Neomano.Neomano, 'is_moving')
-    assert hasattr(Neomano.Neomano, 'state')
+    assert hasattr(Neomano.Neomano, '_Neomano__flex_time')
+    assert hasattr(Neomano.Neomano, '_Neomano__extend_time')
     assert hasattr(Neomano.Neomano, 'process')
-    assert hasattr(Neomano.Neomano, 'mode')
     assert hasattr(Neomano.Neomano, 'is_connected')
-    assert hasattr(Neomano.Neomano, 'name')
-    assert hasattr(Neomano.Neomano, 'toggle_state')
-    assert hasattr(Neomano.Neomano, 'time_start')
-    assert hasattr(Neomano.Neomano, 'time_left')
-    assert hasattr(Neomano.Neomano, 'time_step')
-    assert hasattr(Neomano.Neomano, 'number_step')
-    assert hasattr(Neomano.Neomano, 'total_step')
+    assert hasattr(Neomano.Neomano, 'name')    
+    
+#    assert hasattr(Neomano.Neomano, 'time_step')
+#    assert hasattr(Neomano.Neomano, 'number_step')
+#    assert hasattr(Neomano.Neomano, 'total_step')
 
     device = Neomano.Neomano()
+    assert hasattr(device, 'mode')
+    assert hasattr(device, 'state')
+    assert hasattr(device, 'time_start')
+    assert hasattr(device, 'time_remaining')
 
-    assert device.name == 'insert device name!' # TODO: Get device name!
+    assert device.name == 'SLAB_USBtoUART' 
     #assert device.mode == Neomano.Mode.CONTINUOUS 
     #
     # why did you want to assert that it starts in continuous mode?
     #
-    assert device.state == Neomano.State.EXTENDED
-    assert device.__extend_time__ == 3 # determine extend time
-    assert device.__flex_time__ == 3 # determine flex time
+    assert device.state.get() == Neomano.State.EXTENDED
+    assert device._Neomano__extend_time== 1 # determine extend time
+    assert device._Neomano__flex_time == 1 # determine flex time
 
     # Check full run of toggles
     device.mode = Neomano.Mode.TOGGLE
     device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.FLEXED
+    assert device.state.get() == Neomano.State.FLEXED
     assert device.toggle_state == True
     device.process(Nexus.ClassifiedInput.REST)
-    assert device.state == Neomano.State.FLEXED
+    assert device.state.get() == Neomano.State.FLEXED
     assert device.toggle_state == True
     device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.EXTENDED
+    assert device.state.get() == Neomano.State.EXTENDED
     assert device.toggle_state == False
     device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.FLEXED
+    assert device.state.get() == Neomano.State.FLEXED
     assert device.toggle_state == True
     
     # Check full run of continous
     device.mode = Neomano.Mode.CONTINUOUS
     device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.FLEXED
+    assert device.state.get() == Neomano.State.FLEXED
     device.process(Nexus.ClassifiedInput.REST)
-    assert device.state == Neomano.State.EXTENDED
+    assert device.state.get() == Neomano.State.EXTENDED
     
     # Check full run of timed
     device.mode = Neomano.Mode.TIMED
     device.time_start = 1
-    device.time_left = -1
+    device.time_remaining = -1
+    ts1 = time.time()
     device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.FLEXED
-    assert device.time_left < 1
-    # we could also just send back system waiting if we get that we started and time is less than start and greater than 0
-    device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.FLEXED
-    # set time to 0 and make sure that move extends on 0
-    device.time_left = 0
-    device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.EXTENDED
-    device.process(Nexus.ClassifiedInput.REST)
-    assert device.state == Neomano.State.EXTENDED
-    
-    device.time_left = -1
-    device.process(Nexus.ClassifiedInput.REST)
-    assert device.state == Neomano.State.EXTENDED
-    device.process(Nexus.ClassifiedInput.MOVE)
-    assert device.state == Neomano.State.FLEXED
+    ts2 = time.time()
+    assert device.state.get() == Neomano.State.EXTENDED
+    assert round(ts2-ts1) == device._Neomano__flex_time + device._Neomano__extend_time + device.time_condition_delay
+#    assert device.time_remaining < 1
+#    # we could also just send back system waiting if we get that we started and time is less than start and greater than 0
+#    device.process(Nexus.ClassifiedInput.MOVE)
+#    assert device.state.get() == Neomano.State.EXTENDED
+#    # set time to 0 and make sure that move extends on 0
+#    device.time_remaining = 0
+#    device.process(Nexus.ClassifiedInput.MOVE)
+#    assert device.state.get() == Neomano.State.EXTENDED
+#    device.process(Nexus.ClassifiedInput.REST)
+#    assert device.state.get() == Neomano.State.EXTENDED
+#    
+#    device.time_remaining = -1
+#    device.process(Nexus.ClassifiedInput.REST)
+#    assert device.state.get() == Neomano.State.EXTENDED
+#    device.process(Nexus.ClassifiedInput.MOVE)
+#    assert device.state.get() == Neomano.State.EXTENDED
     
     
     
