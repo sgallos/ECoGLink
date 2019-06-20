@@ -4,6 +4,8 @@ from .Operation_mode import Operation_mode
 from ECoGLink.Devices import Device
 import ECoGLink.Devices.Nexus as Nexus
 import time
+import serial
+import serial.tools.list_ports as lp
 
 class State():
     STOPPED = 0
@@ -96,7 +98,16 @@ class Neomano(Device):
     __flex_time = 1
     __extend_time = 1
     
-    def __init__(self):     
+    def __init__(self, port = None):  
+        
+        super().__init__(port if port != None else self.__detect_com_port__())
+
+        if self.port == None:
+            return
+        
+        
+        self.bauderate = 115200
+        self.timeout_com = .5
         self.state = State(State.EXTENDED)
         self.toggle_state = False
         self.time_start = 0
@@ -112,12 +123,23 @@ class Neomano(Device):
                 Mode.TOGGLE: Toggle_Condition(self.state),
                 Mode.TIMED: Time_Based_Condition()
                 }
-        
+        self.ser = serial.Serial(self.port, baudrate=self.bauderate, timeout= self.timeout_com)
     def stop(self):
+        pass
+    
+    def write_neomano():
         pass
     
     def is_connected():
         pass
+    def __detect_com_port__(self):
+        port_infos = lp.comports(include_links = True)
+        potential_neomano_port_info = list(filter(lambda x: x.pid == self.product_id and x.vid == self.vendor_id, port_infos))
+        if len(potential_neomano_port_info) < 1:
+            return
+
+        neomano_port_info = potential_neomano_port_info[0]
+        return neomano_port_info.device
     
     def process(self, signal_input):
             
