@@ -124,11 +124,20 @@ class Neomano(Device):
                 Mode.TIMED: Time_Based_Condition()
                 }
         self.ser = serial.Serial(self.port, baudrate=self.bauderate, timeout= self.timeout_com)
+        if self.ser.isOpen == False:
+            self.ser.open()
     def stop(self):
         pass
     
-    def write_neomano():
-        pass
+    def write_neomano(self, hardware_output):
+        
+        if hardware_output == Output_Command.FLEX:
+            self.ser.write(b'1')
+        elif hardware_output == Output_Command.EXTEND:
+            self.ser.write(b'2')
+        elif hardware_output == Output_Command.STOP:
+            self.ser.write(b'0')
+        return
     
     def is_connected():
         pass
@@ -148,8 +157,10 @@ class Neomano(Device):
         ############### fix this shit#############
         if self.mode == Mode.TOGGLE:
             if hardward_output == Output_Command.FLEX:
+                self.write_neomano(hardward_output)
                 self.state.set(State.FLEXED)
             elif hardward_output == Output_Command.EXTEND:
+                self.write_neomano(Output_Command.EXTEND)
                 self.state.set(State.EXTENDED)
             self.timeout = timeoutpro
             if self.timeout == True:
@@ -162,16 +173,20 @@ class Neomano(Device):
             if hardward_output == Output_Command.FLEX:
                 self.state.set(State.FLEXED)
             elif hardward_output == Output_Command.EXTEND:
+                self.write_neomano(Output_Command.EXTEND)
                 self.state.set(State.EXTENDED)
         if self.mode == Mode.TIMED:
             self.timeout = timeoutpro
             if self.timeout == True:
                 if hardward_output == Output_Command.FLEX:
+                    self.write_neomano(hardward_output)
                     time.sleep(self.__flex_time)
                     time.sleep(self.time_condition_delay)
+                    self.write_neomano(Output_Command.EXTEND)
                     time.sleep(self.__extend_time)
                     self.state.set(State.EXTENDED)
             if hardward_output == Output_Command.EXTEND:
+                self.write_neomano(Output_Command.EXTEND)
                 self.state.set(State.EXTENDED)
         return
 
