@@ -18,7 +18,7 @@ class State(Enum):
     FLEXED = 1
     EXTENDED = 2
     
-
+# work in progress to make independent neomano outputs
 class Neomano_hardware(Neomano, neomano_state_output, neomano_controller_output):
         def __init__(self):
             self.neomano_state = State.EXTENDED
