@@ -54,17 +54,17 @@ class Neomano(Device):
         
         self.bauderate = 115200
         self.mode = Mode.CONTINUOUS
+        self.state = State(State.EXTENDED)
         self.modes = {
                 Mode.CONTINUOUS: Continuous_Condition(),
                 Mode.TOGGLE: Toggle_Condition(self.state),
                 Mode.TIMED: Time_Based_Condition()
                 }
         self.number_step = 0
-        self.state = State(State.EXTENDED)
         self.timeout_com = .5
         self.time_start = 0
         self.timeout = False
-        #self.time_remaining = 0
+        self.time_remaining = 0
         self.time_condition_delay = 1
         self.time_step = 0
         self.toggle_state = False
